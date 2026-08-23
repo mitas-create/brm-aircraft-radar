@@ -4,6 +4,10 @@ airports_cache.csv
 # Cloudflared binárka (~55 MB) — stahuje se zvlášť, nepatří do gitu
 tools/
 
+# Jména pilotů — osobní údaje konkrétních lidí. Repozitář je veřejný,
+# takže tenhle soubor zůstává jen na tvém počítači.
+brm_pilots.json
+
 # Python
 __pycache__/
 *.pyc

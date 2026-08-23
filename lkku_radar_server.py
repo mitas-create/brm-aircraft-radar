@@ -454,6 +454,145 @@ def _save_fleet_log(log):
         pass
 
 
+# ---------- Sloučení s logem, který sbírá GitHub Actions 24/7 ----------
+#
+# GitHub Actions kontroluje flotilu i když tenhle počítač neběží. Aby appka
+# ukazovala i tyhle lety, stáhne si vzdálený log a spojí ho s tím lokálním.
+# Lokální log se tím NEPŘEPÍŠE — slučuje se jen pro zobrazení, takže se nemůže
+# stát, že by se stažená data zapsala zpátky a zduplikovala.
+
+REMOTE_LOG_URL = os.environ.get(
+    "BRM_REMOTE_LOG_URL",
+    "https://raw.githubusercontent.com/mitas-create/brm-aircraft-radar/main/brm_fleet_log.json",
+)
+REMOTE_LOG_TTL = 120  # sekund mezi staženími
+SAME_FLIGHT_TOLERANCE_MIN = 25  # dva záznamy se stejnou značkou a blízkým vzletem = tentýž let
+
+_remote_log_cache = {"data": None, "ts": 0, "ok": False}
+
+
+def fetch_remote_log(force=False):
+    now = time.time()
+    if not force and now - _remote_log_cache["ts"] < REMOTE_LOG_TTL:
+        return _remote_log_cache["data"]
+
+    data = None
+    try:
+        req = urllib.request.Request(
+            REMOTE_LOG_URL,
+            headers={
+                "User-Agent": "Mozilla/5.0 (compatible; LKKU-Radar-Local/1.0)",
+                "Accept": "application/json",
+                "Cache-Control": "no-cache",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = json.loads(resp.read().decode())
+    except Exception:
+        data = None
+
+    _remote_log_cache["data"] = data
+    _remote_log_cache["ts"] = now
+    _remote_log_cache["ok"] = data is not None
+    return data
+
+
+def _flight_completeness(f):
+    return int(bool(f.get("takeoff_known"))) + int(bool(f.get("landing_known")))
+
+
+def _same_flight(a, b):
+    if a.get("registration") != b.get("registration"):
+        return False
+    try:
+        ta = datetime.fromisoformat(a["takeoff_time"])
+        tb = datetime.fromisoformat(b["takeoff_time"])
+    except Exception:
+        return False
+    return abs((ta - tb).total_seconds()) <= SAME_FLIGHT_TOLERANCE_MIN * 60
+
+
+def _merge_entry(local, remote):
+    """Sloučí jednu registraci. Při shodě vyhrává úplnější záznam."""
+    merged = {
+        "hexes": dict(local.get("hexes", {})),
+        "duplicate_events": list(local.get("duplicate_events", [])),
+        "flights": list(local.get("flights", [])),
+    }
+    if local.get("current_flight"):
+        merged["current_flight"] = local["current_flight"]
+    if local.get("last_ground_position"):
+        merged["last_ground_position"] = local["last_ground_position"]
+
+    # transpondéry: sjednotit, u shodných vzít nejnovější kontakt a nejstarší první výskyt
+    for hex_id, rh in remote.get("hexes", {}).items():
+        lh = merged["hexes"].get(hex_id)
+        if lh is None:
+            merged["hexes"][hex_id] = dict(rh)
+            continue
+        if rh.get("last_seen", "") > lh.get("last_seen", ""):
+            lh.update({k: v for k, v in rh.items() if k != "first_seen"})
+        if rh.get("first_seen") and rh["first_seen"] < lh.get("first_seen", "9999"):
+            lh["first_seen"] = rh["first_seen"]
+
+    # duplicitní události: sjednotit podle času a dvojice transpondérů
+    seen_events = {(e.get("ts"), tuple(e.get("hexes", []))) for e in merged["duplicate_events"]}
+    for ev in remote.get("duplicate_events", []):
+        key = (ev.get("ts"), tuple(ev.get("hexes", [])))
+        if key not in seen_events:
+            merged["duplicate_events"].append(ev)
+            seen_events.add(key)
+    merged["duplicate_events"].sort(key=lambda e: e.get("ts") or "")
+
+    # lety: přidat jen ty, které lokálně nemáme; při shodě nechat úplnější záznam
+    for rf in remote.get("flights", []):
+        match_idx = next((i for i, lf in enumerate(merged["flights"]) if _same_flight(rf, lf)), None)
+        if match_idx is None:
+            merged["flights"].append(rf)
+        elif _flight_completeness(rf) > _flight_completeness(merged["flights"][match_idx]):
+            # vzdálený záznam zná vzlet/přistání líp — ale ručně zapsaného pilota neztratit
+            pilot = merged["flights"][match_idx].get("pilot") or rf.get("pilot", "")
+            merged["flights"][match_idx] = {**rf, "pilot": pilot}
+
+    merged["flights"].sort(key=lambda f: f.get("takeoff_time") or "")
+    return merged
+
+
+# Jména pilotů si držíme zvlášť od strojově sbíraných dat. Jinak by nešlo
+# dopsat pilota k letu, který zachytil GitHub — ten totiž v lokálním logu
+# vůbec není, takže by zápis neměl kam jít.
+PILOTS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "brm_pilots.json")
+
+
+def _load_pilots():
+    try:
+        with open(PILOTS_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _save_pilots(pilots):
+    try:
+        with open(PILOTS_PATH, "w", encoding="utf-8") as f:
+            json.dump(pilots, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
+
+
+def _load_merged_log():
+    """Log pro ZOBRAZENÍ: lokální data + to, co mezitím nasbíral GitHub."""
+    local = _load_fleet_log()
+    remote = fetch_remote_log()
+    if not remote:
+        return local
+
+    merged = {}
+    for reg in set(local) | set(remote):
+        merged[reg] = _merge_entry(local.get(reg, {}), remote.get(reg, {}))
+    return merged
+
+
 def _query_registration(reg):
     reg_clean = reg.strip()
     urls = [
@@ -624,7 +763,7 @@ def _fleet_poll_loop():
 
 def build_fleet_status():
     with _fleet_lock:
-        log = _load_fleet_log()
+        log = _load_merged_log()
     now = datetime.now(timezone.utc)
     fleet = []
 
@@ -681,7 +820,8 @@ def _format_duration(minutes):
 
 def build_logbook(reg_filter=None):
     with _fleet_lock:
-        log = _load_fleet_log()
+        log = _load_merged_log()
+        pilots = _load_pilots()
 
     regs = [reg_filter] if reg_filter else BRM_FLEET_REGISTRATIONS
     raw_rows = []
@@ -728,7 +868,8 @@ def build_logbook(reg_filter=None):
                 "landing_local": local_time_str(landing_dt, f.get("landing_lat"), f.get("landing_lon")),
                 "duration_minutes": round(duration_min) if duration_min is not None else None,
                 "duration_str": _format_duration(duration_min),
-                "pilot": f.get("pilot", ""),
+                # ručně dopsané jméno má přednost před tím, co je uložené v logu
+                "pilot": pilots.get(f.get("id"), "") or f.get("pilot", ""),
                 "incomplete": incomplete,
                 "incomplete_note": note,
             }))
@@ -738,20 +879,21 @@ def build_logbook(reg_filter=None):
 
 
 def update_flight_pilot(flight_id, pilot_name):
+    """Uloží jméno pilota. Funguje i pro lety, které zachytil GitHub a v lokálním
+    logu vůbec nejsou — proto se ukládá do samostatného souboru, ne do logu."""
+    flight_id = (flight_id or "").strip()
+    if not flight_id:
+        return False
+
+    name = (pilot_name or "").strip()[:100]
     with _fleet_lock:
-        log = _load_fleet_log()
-        updated = False
-        for entry in log.values():
-            for f in entry.get("flights", []):
-                if f.get("id") == flight_id:
-                    f["pilot"] = (pilot_name or "").strip()[:100]
-                    updated = True
-                    break
-            if updated:
-                break
-        if updated:
-            _save_fleet_log(log)
-        return updated
+        pilots = _load_pilots()
+        if name:
+            pilots[flight_id] = name
+        else:
+            pilots.pop(flight_id, None)  # prázdné pole = smazat záznam
+        _save_pilots(pilots)
+        return True
 
 
 def export_logbook_csv(reg_filter=None):
@@ -1307,9 +1449,10 @@ HTML_PAGE = r"""<!DOCTYPE html>
         </table>
       </div>
       <div class="fleet-note">
-        Flights are only recorded from the moment this app starts watching a registration — nothing is backfilled
-        from before. Rows in yellow mean the signal was only partially caught (takeoff and/or landing not
-        confirmed); hover the row for details.
+        Combines flights caught by this computer with those collected around the clock by the GitHub Actions
+        watcher, which keeps running even when this machine is off. Rows in yellow mean the signal was only
+        partially caught (takeoff and/or landing not confirmed); hover the row for details.
+        Pilot names are stored only on this computer (<code>brm_pilots.json</code>) and are never uploaded.
       </div>
     </div>
   </div>
