@@ -1,0 +1,64 @@
+name: BRM fleet poll
+
+# Sleduje registrace BRM Aero i když je tvůj počítač vypnutý.
+# Výsledek se commitne zpátky do repozitáře jako brm_fleet_log.json.
+on:
+  schedule:
+    # Každých 15 minut. GitHub negarantuje přesnost — ve špičce běžně
+    # nabíhá se zpožděním 10–30 min, což je pro hlídání duplicit v pohodě.
+    - cron: '*/15 * * * *'
+  workflow_dispatch:  # umožní ruční spuštění tlačítkem v záložce Actions
+
+# Zápis do repozitáře (commit logu zpět)
+permissions:
+  contents: write
+
+# Kdyby se běhy překryly, ať si navzájem nepřepisují log
+concurrency:
+  group: fleet-poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Poll fleet
+        run: python fleet_poller.py
+
+      - name: Commit updated log
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Nejdřív zařadit do indexu, teprve pak porovnávat — jinak by se
+          # úplně první log (zatím untracked) nikdy nezachytil jako změna.
+          git add brm_fleet_log.json
+
+          if git diff --cached --quiet -- brm_fleet_log.json; then
+            echo "Nic nového — žádná změna v logu, necommituju."
+            exit 0
+          fi
+
+          git commit -m "Fleet log: $(date -u '+%Y-%m-%d %H:%M UTC')"
+
+          # Kdyby mezitím přibyl jiný commit, ať push neselže
+          for i in 1 2 3; do
+            if git push; then
+              echo "Push OK"
+              exit 0
+            fi
+            echo "Push selhal, zkouším znovu ($i/3)…"
+            git pull --rebase --autostash
+          done
+          echo "Push se nepodařil ani na třetí pokus."
+          exit 1

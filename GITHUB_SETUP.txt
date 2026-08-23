@@ -1,0 +1,113 @@
+Nepřetržité logování flotily přes GitHub Actions
+=================================================
+
+CO TO ŘEŠÍ
+-----------
+Logování letů a hlídání duplicitních transpondérů poběží 24/7 i s vypnutým
+počítačem. Zdarma, bez platební karty. GitHub každých 15 minut spustí
+fleet_poller.py a výsledek uloží do brm_fleet_log.json přímo v repozitáři.
+
+Živý radar (LKKU / Bristell) tohle NEŘEŠÍ — ten si pořád pouštíš lokálně
+přes start.bat, když se chceš podívat. Živá data jsou stejně vždy čerstvá,
+takže tam nepřetržitý běh nedává smysl.
+
+
+KROK 1: ÚČET NA GITHUBU
+------------------------
+Pokud ho nemáš, založ si zdarma na https://github.com/signup
+(stačí email, kartu nechce).
+
+
+KROK 2: VYTVOŘ REPOZITÁŘ
+-------------------------
+https://github.com/new
+
+  Repository name:  brm-aircraft-radar   (nebo jak chceš)
+  Public / Private: viz rozhodnutí níže
+  NEZAŠKRTÁVEJ "Add a README file" — nahráváme vlastní soubory
+
+  >>> PUBLIC vs PRIVATE <<<
+
+  PUBLIC  = GitHub Actions zdarma bez omezení minut.
+            Ale log letů uvidí kdokoliv na internetu.
+            (Poznámka: ADS-B data jsou veřejná už ze své podstaty —
+            kdokoliv si tyhle značky může najít na běžných trackovacích
+            webech. Veřejné repo z toho ale dělá pohodlný ucelený přehled.)
+
+  PRIVATE = data jsou jen tvoje, ale free tarif dává 2 000 minut měsíčně.
+            Při intervalu 15 minut bys spotřeboval ~2 900 min → NEVEJDE SE.
+            Když zvolíš private, ZMĚŇ v souboru
+            .github/workflows/fleet-poll.yml řádek
+
+                - cron: '*/15 * * * *'
+            na
+                - cron: '*/30 * * * *'
+
+            (~1 450 min/měsíc, pohodlně se vejde)
+
+
+KROK 3: NAHRÁJ SOUBORY
+-----------------------
+V příkazové řádce ve složce "Flight board v2":
+
+    git init
+    git add .
+    git commit -m "BRM Aero aircraft radar"
+    git branch -M main
+    git remote add origin https://github.com/TVOJE-JMENO/brm-aircraft-radar.git
+    git push -u origin main
+
+(URL zkopíruj z GitHubu po vytvoření repozitáře. Při prvním pushi se tě
+zeptá na přihlášení — přihlas se přes prohlížeč, když to nabídne.)
+
+Poznámka: .gitignore schválně vynechává tools/ (cloudflared, 55 MB) a
+airports_cache.csv (12 MB). Ty se stáhnou samy / je nepotřebuješ v gitu.
+
+
+KROK 4: POVOL ZÁPIS PRO ACTIONS
+--------------------------------
+V repozitáři: Settings -> Actions -> General -> dolů na
+"Workflow permissions" -> vyber "Read and write permissions" -> Save.
+
+Bez tohohle nemůže robot commitnout log zpátky.
+
+
+KROK 5: PRVNÍ SPUŠTĚNÍ
+-----------------------
+Záložka "Actions" -> vlevo "BRM fleet poll" -> tlačítko "Run workflow".
+Za ~40 sekund by měl doběhnout zeleně. Pak se v repozitáři objeví
+soubor brm_fleet_log.json.
+
+Od té chvíle to jede samo každých 15 (resp. 30) minut.
+
+
+KDE UVIDÍM DATA
+----------------
+Zatím přímo v repozitáři — soubor brm_fleet_log.json. Není to hezké, je
+to surové JSON, ale je tam všechno: zachycené lety, časy, pozice
+a duplicitní transpondéry.
+
+Hezké zobrazení (tabulka + logbook jako v appce) dostupné z mobilu
+i z práce = další krok, viz "CO DÁL" níže.
+
+
+NA CO SI DÁT POZOR
+-------------------
+- GitHub cron NENÍ přesný. Ve špičce běžně nabíhá o 10–30 min později.
+  Pro hlídání duplicit to nevadí, ale časy vzletu/přistání v logbooku
+  budou hrubší než při lokálním běhu (ten kontroluje po 5 minutách).
+
+- Když v repozitáři 60 dní nic neuděláš, GitHub naplánované workflow
+  automaticky vypne a pošle ti email. Stačí pak kliknout na "Run workflow"
+  a zase se to rozjede.
+
+- Lokální appka (start.bat) a GitHub si vedou KAŽDÝ SVŮJ log. Zatím se
+  nespojují — viz "CO DÁL".
+
+
+CO DÁL (až budeš chtít)
+------------------------
+1) Zobrazení přes GitHub Pages — statická stránka s tabulkou flotily
+   a logbookem, dostupná odkudkoliv na hezké adrese, zdarma.
+2) Propojení logů — aby lokální appka uměla načíst i to, co nasbíral
+   GitHub, a zobrazila obojí dohromady.

@@ -1,0 +1,51 @@
+BRM Aero Aircraft Radar — nasazení na firemní PC
+==================================================
+
+CO POTŘEBUJEŠ PŘENÉST
+----------------------
+Celou tuhle složku "Flight board v2" (obsahuje lkku_radar_server.py,
+start.bat, tools\cloudflared.exe a soubory s historií). Stačí zkopírovat
+na USB/OneDrive/email a nahrát na firemní PC.
+
+1) PYTHON
+---------
+Na firemním PC musí být nainstalovaný Python 3. Ověříš v příkazové řádce:
+    python --version
+Pokud chybí, stáhni z https://www.python.org/downloads/ (při instalaci
+zaškrtni "Add python.exe to PATH").
+
+2) SPUŠTĚNÍ
+-----------
+Dvojklik na start.bat.
+Otevřou se 2 nová okna:
+  - "BRM Radar - SERVER"        -> musí zůstat spuštěné
+  - "BRM Radar - VEREJNY ODKAZ" -> v něm najdeš řádek podobný:
+        https://nahodna-slova.trycloudflare.com
+    Tenhle odkaz pošli komukoliv, kdo má appku používat (kolega, kamarád...).
+
+POZOR: Odkaz se změní pokaždé, když start.bat spustíš znovu (např. po
+restartu PC). Pokud appka přestane fungovat, zkontroluj obě okna a najdi
+nový odkaz.
+
+3) NASTAVENÍ NAPÁJENÍ (DŮLEŽITÉ)
+---------------------------------
+Aby appka běžela opravdu nepřetržitě, počítač nesmí jít spát ani se
+vypínat:
+  Nastavení -> Systém -> Napájení a baterie -> Obrazovka a spánek
+  -> "Uspat po" nastav na "Nikdy" (aspoň pro režim "při napájení").
+Zamykání obrazovky (Win+L) nevadí, appka běží dál — jen PC nesmí
+usnout ani se vypnout.
+
+4) CO appka DĚLÁ NA POZADÍ
+----------------------------
+- Sleduje letadla u LKKU Kunovice a živě všechny Bristelly ve vzduchu.
+- Každých 5 minut kontroluje 7 registrací BRM Aero (včetně zalétávacích
+  značek) a ukládá výsledky do brm_fleet_log.json vedle skriptu —
+  tahle historie PŘEŽIJE restart appky, pokud se soubor přenese spolu
+  s ní. Pokud appka neběží (PC vypnutý), nic se neloguje.
+
+5) BEZPEČNOST
+--------------
+Veřejný odkaz NENÍ chráněný heslem — kdokoliv, kdo ho zná, appku uvidí.
+Adresa je náhodná a nikde zveřejněná, ale posílej ji jen lidem, kterým
+důvěřuješ.

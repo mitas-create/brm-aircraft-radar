@@ -1,0 +1,13 @@
+# Stahovaná databáze letišť (~12 MB) — appka si ji stáhne sama při prvním spuštění
+airports_cache.csv
+
+# Cloudflared binárka (~55 MB) — stahuje se zvlášť, nepatří do gitu
+tools/
+
+# Python
+__pycache__/
+*.pyc
+
+# Dočasné exporty
+test_export.csv
+*.tmp
