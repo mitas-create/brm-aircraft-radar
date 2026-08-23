@@ -1,0 +1,85 @@
+Přenesení appky na firemní počítač
+====================================
+
+Nemusíš nic kopírovat na flashku. Všechno je na GitHubu.
+
+
+KROK 1: PYTHON
+---------------
+Ověř v příkazové řádce (cmd):
+
+    python --version
+
+Když to vypíše "Python 3.něco", máš hotovo. Když ne, stáhni z
+https://www.python.org/downloads/
+a při instalaci ZAŠKRTNI "Add python.exe to PATH" (důležité!).
+
+
+KROK 2: STÁHNOUT APPKU
+-----------------------
+Nejjednodušší cesta bez instalace čehokoliv dalšího:
+
+  1. Otevři https://github.com/mitas-create/brm-aircraft-radar
+  2. Zelené tlačítko "Code" -> "Download ZIP"
+  3. Rozbal někam k sobě (třeba na Plochu)
+
+Alternativa, pokud máš na firemním PC git (výhoda: aktualizace
+jedním příkazem, viz níže):
+
+    git clone https://github.com/mitas-create/brm-aircraft-radar.git
+
+
+KROK 3: SPUSTIT
+----------------
+Ve složce dvojklik na:
+
+    start-lokalne.bat
+
+Otevře se okno a v prohlížeči appka na http://127.0.0.1:8765/
+To okno nechávej otevřené, dokud appku používáš.
+
+(Soubor start.bat je ta druhá varianta — spustí navíc veřejný odkaz
+pro sdílení. Ten potřebuješ jen když chceš appku někomu poslat,
+a musíš k němu doplnit tools/cloudflared.exe, viz NASAZENI.txt.)
+
+
+CO UVIDÍŠ V LOGBOOKU
+---------------------
+Appka si sama stáhne z GitHubu všechny lety, které mezitím nasbíral
+robot běžící 24/7 — takže uvidíš i to, co se stalo, když jsi appku
+neměl puštěnou. K tomu přidává, co zachytí sama, dokud běží.
+
+Jinými slovy: logbook je kompletní bez ohledu na to, kde a kdy appku
+pustíš. Nic se neduplikuje, o to se stará slučování.
+
+
+JMÉNA PILOTŮ
+-------------
+Ukládají se do brm_pilots.json JEN na tom počítači, kde je zapíšeš.
+Schválně se nenahrávají na GitHub — repozitář je veřejný a jména
+pilotů jsou osobní údaje.
+
+Důsledek: co dopíšeš doma, neuvidíš v práci a naopak. Když to budeš
+chtít mít společné, dej vědět a vymyslíme to jinak.
+
+
+AKTUALIZACE APPKY
+------------------
+Když appku vylepšíme, dostaneš novou verzi takto:
+
+  - Když jsi použil "Download ZIP": stáhni ZIP znovu a přepiš soubory.
+    POZOR: nepřepiš si brm_pilots.json, kdybys tam měl jména pilotů.
+
+  - Když jsi použil "git clone": stačí ve složce spustit
+
+        git pull
+
+    a je to. Tohle je pohodlnější, proto doporučuju git clone.
+
+
+NA CO NEZAPOMENOUT
+-------------------
+- Sledování flotily běží na GitHubu nezávisle na tobě. Nemusíš mít
+  appku puštěnou, aby se lety zaznamenávaly.
+- Živý radar (LKKU / Bristell) funguje jen když appku spustíš —
+  ta data jsou stejně živá, takže to dává smysl.
