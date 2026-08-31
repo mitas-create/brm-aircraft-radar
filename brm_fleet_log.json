@@ -54,19 +54,24 @@
       }
     },
     "duplicate_events": [],
-    "current_flight": {
-      "id": "e47a4b13f664",
-      "registration": "OK-HTO",
-      "callsign": "OKHTO",
-      "type": "BR23",
-      "takeoff_time": "2026-08-31T10:19:13.679626+00:00",
-      "takeoff_lat": 49.044983,
-      "takeoff_lon": 17.411006,
-      "takeoff_known": false,
-      "last_seen_ts": "2026-08-31T10:34:17.374591+00:00",
-      "last_lat": 49.050743,
-      "last_lon": 17.475923
-    }
+    "current_flight": null,
+    "flights": [
+      {
+        "id": "e47a4b13f664",
+        "registration": "OK-HTO",
+        "callsign": "OKHTO",
+        "type": "BR23",
+        "takeoff_time": "2026-08-31T10:19:13.679626+00:00",
+        "takeoff_lat": 49.044983,
+        "takeoff_lon": 17.411006,
+        "takeoff_known": false,
+        "landing_time": "2026-08-31T10:34:17.374591+00:00",
+        "landing_lat": 49.050743,
+        "landing_lon": 17.475923,
+        "landing_known": false,
+        "pilot": ""
+      }
+    ]
   },
   "OK-BRP": {
     "hexes": {},
