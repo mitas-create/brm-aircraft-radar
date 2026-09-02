@@ -15,11 +15,11 @@
     "hexes": {
       "3ffc1d": {
         "first_seen": "2026-08-31T08:19:16.772340+00:00",
-        "last_seen": "2026-09-02T12:10:48.249652+00:00",
+        "last_seen": "2026-09-02T12:32:29.960851+00:00",
         "callsign": "DMZYW",
         "type": "NG5",
-        "last_lat": 49.034637,
-        "last_lon": 17.494953
+        "last_lat": 49.029694,
+        "last_lon": 17.4746
       }
     },
     "duplicate_events": [],
@@ -32,9 +32,9 @@
       "takeoff_lat": 49.034637,
       "takeoff_lon": 17.494953,
       "takeoff_known": false,
-      "last_seen_ts": "2026-09-02T12:10:48.249652+00:00",
-      "last_lat": 49.034637,
-      "last_lon": 17.494953
+      "last_seen_ts": "2026-09-02T12:32:29.960851+00:00",
+      "last_lat": 49.029694,
+      "last_lon": 17.4746
     },
     "flights": [
       {
