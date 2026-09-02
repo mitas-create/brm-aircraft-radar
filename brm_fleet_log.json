@@ -15,15 +15,27 @@
     "hexes": {
       "3ffc1d": {
         "first_seen": "2026-08-31T08:19:16.772340+00:00",
-        "last_seen": "2026-09-01T08:54:57.813826+00:00",
+        "last_seen": "2026-09-02T09:39:21.449679+00:00",
         "callsign": "DMZYW",
         "type": "NG5",
-        "last_lat": 49.045029,
-        "last_lon": 17.384456
+        "last_lat": 48.999161,
+        "last_lon": 17.478121
       }
     },
     "duplicate_events": [],
-    "current_flight": null,
+    "current_flight": {
+      "id": "977ae5456cad",
+      "registration": "D-MZYW",
+      "callsign": "DMZYW",
+      "type": "NG5",
+      "takeoff_time": "2026-09-02T09:39:21.449679+00:00",
+      "takeoff_lat": 48.999161,
+      "takeoff_lon": 17.478121,
+      "takeoff_known": false,
+      "last_seen_ts": "2026-09-02T09:39:21.449679+00:00",
+      "last_lat": 48.999161,
+      "last_lon": 17.478121
+    },
     "flights": [
       {
         "id": "a8074c2dd26b",
