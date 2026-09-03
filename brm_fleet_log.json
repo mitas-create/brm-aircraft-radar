@@ -106,11 +106,11 @@
     "hexes": {
       "49d66d": {
         "first_seen": "2026-08-31T10:19:13.679626+00:00",
-        "last_seen": "2026-09-03T09:40:12.619208+00:00",
+        "last_seen": "2026-09-03T09:52:33.179356+00:00",
         "callsign": "OKHTO",
         "type": "BR23",
-        "last_lat": 48.953201,
-        "last_lon": 14.629141
+        "last_lat": 49.045622,
+        "last_lon": 15.228063
       }
     },
     "duplicate_events": [],
@@ -123,9 +123,9 @@
       "takeoff_lat": 48.957001,
       "takeoff_lon": 12.993939,
       "takeoff_known": false,
-      "last_seen_ts": "2026-09-03T09:40:12.619208+00:00",
-      "last_lat": 48.953201,
-      "last_lon": 14.629141
+      "last_seen_ts": "2026-09-03T09:52:33.179356+00:00",
+      "last_lat": 49.045622,
+      "last_lon": 15.228063
     },
     "flights": [
       {
