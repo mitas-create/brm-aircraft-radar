@@ -15,8 +15,8 @@
     "hexes": {
       "3ffc1d": {
         "first_seen": "2026-08-31T08:19:16.772340+00:00",
-        "last_seen": "2026-09-21T13:25:11.606964+00:00",
-        "callsign": "DMZYW",
+        "last_seen": "2026-09-21T13:38:58.100852+00:00",
+        "callsign": "",
         "type": "NG5",
         "last_lat": 50.754414,
         "last_lon": 13.516155
@@ -32,7 +32,7 @@
       "takeoff_lat": 49.082826,
       "takeoff_lon": 17.383448,
       "takeoff_known": true,
-      "last_seen_ts": "2026-09-21T13:25:11.606964+00:00",
+      "last_seen_ts": "2026-09-21T13:38:58.100852+00:00",
       "last_lat": 50.754414,
       "last_lon": 13.516155
     },
