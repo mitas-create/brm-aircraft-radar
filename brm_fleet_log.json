@@ -23,19 +23,7 @@
       }
     },
     "duplicate_events": [],
-    "current_flight": {
-      "id": "f7b6815a5737",
-      "registration": "D-MZYW",
-      "callsign": "DMZYW",
-      "type": "NG5",
-      "takeoff_time": "2026-09-16T09:08:59.564601+00:00",
-      "takeoff_lat": 49.082826,
-      "takeoff_lon": 17.383448,
-      "takeoff_known": true,
-      "last_seen_ts": "2026-09-23T15:02:26.353070+00:00",
-      "last_lat": 48.356556,
-      "last_lon": 8.638217
-    },
+    "current_flight": null,
     "flights": [
       {
         "id": "a8074c2dd26b",
@@ -334,6 +322,21 @@
         "landing_time": "2026-09-22T11:24:47.596344+00:00",
         "landing_lat": 49.101578,
         "landing_lon": 17.279158,
+        "landing_known": false,
+        "pilot": ""
+      },
+      {
+        "id": "f7b6815a5737",
+        "registration": "D-MZYW",
+        "callsign": "DMZYW",
+        "type": "NG5",
+        "takeoff_time": "2026-09-16T09:08:59.564601+00:00",
+        "takeoff_lat": 49.082826,
+        "takeoff_lon": 17.383448,
+        "takeoff_known": true,
+        "landing_time": "2026-09-23T15:02:26.353070+00:00",
+        "landing_lat": 48.356556,
+        "landing_lon": 8.638217,
         "landing_known": false,
         "pilot": ""
       }
