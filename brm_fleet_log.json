@@ -351,11 +351,11 @@
     "hexes": {
       "49d66d": {
         "first_seen": "2026-08-31T10:19:13.679626+00:00",
-        "last_seen": "2026-10-08T10:04:26.061051+00:00",
+        "last_seen": "2026-10-19T06:50:16.054850+00:00",
         "callsign": "OKHTO",
         "type": "BR23",
-        "last_lat": 50.416725,
-        "last_lon": 14.590957
+        "last_lat": 50.335876,
+        "last_lon": 15.944001
       }
     },
     "duplicate_events": [],
@@ -541,7 +541,12 @@
         "landing_known": false,
         "pilot": ""
       }
-    ]
+    ],
+    "last_ground_position": {
+      "lat": 50.335876,
+      "lon": 15.944001,
+      "ts": "2026-10-19T06:50:16.054850+00:00"
+    }
   },
   "OK-BRP": {
     "hexes": {},
